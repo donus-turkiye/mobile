@@ -19,6 +19,18 @@ class _WalletPageState extends State<WalletPage> {
   
   // Örnek işlemler - Gerçek uygulamada veritabanından çekilecek
   late List<TransactionModel> _transactions;
+
+  // Kullanıcının banka hesapları - Gerçek uygulamada veritabanından çekilecek
+  final List<Map<String, dynamic>> _bankAccounts = [
+    {
+      'id': '1',
+      'bank_name': 'Ziraat Bankası',
+      'account_name': 'Admin',
+      'iban': 'TR54 0001 0012 3456 7890 1234 56',
+      'isDefault': true,
+      'icon': 'assets/images/banks/ziraat.png',
+    },
+  ];
   
   @override
   void initState() {
@@ -82,6 +94,38 @@ class _WalletPageState extends State<WalletPage> {
           children: [
             // Bakiye kartı
             _buildBalanceCard(),
+
+            const SizedBox(height: 24),
+
+            // Banka hesapları başlığı
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Banka Hesaplarım',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    _showAddBankAccountBottomSheet();
+                  },
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Hesap Ekle'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF2E7D32),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Banka hesapları
+            _bankAccounts.isEmpty
+                ? _buildEmptyBankAccounts()
+                : _buildBankAccountsList(),
 
             const SizedBox(height: 24),
 
@@ -238,6 +282,304 @@ class _WalletPageState extends State<WalletPage> {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Boş banka hesapları görünümü
+  Widget _buildEmptyBankAccounts() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.account_balance,
+              size: 40,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Henüz banka hesabınız bulunmuyor',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Para çekebilmek için bir banka hesabı eklemelisiniz',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                _showAddBankAccountBottomSheet();
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Banka Hesabı Ekle'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2E7D32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Banka hesapları listesi
+  Widget _buildBankAccountsList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _bankAccounts.length,
+      itemBuilder: (context, index) {
+        final account = _bankAccounts[index];
+        return _buildBankAccountCard(account, index);
+      },
+    );
+  }
+
+  // Banka hesap kartı
+  Widget _buildBankAccountCard(Map<String, dynamic> account, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Başlık kısmı
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F5E9),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Banka logosu
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance,
+                    color: Color(0xFF2E7D32),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Banka adı
+                Expanded(
+                  child: Text(
+                    account['bank_name'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                // Varsayılan göstergesi
+                if (account['isDefault'])
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle,
+                          color: Color(0xFF2E7D32),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'Varsayılan',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // İşlem menüsü
+                PopupMenuButton(
+                  icon: const Icon(Icons.more_vert),
+                  itemBuilder: (context) => [
+                    if (!account['isDefault'])
+                      PopupMenuItem(
+                        value: 'setDefault',
+                        child: const Row(
+                          children: [
+                            Icon(Icons.check_circle_outline),
+                            SizedBox(width: 8),
+                            Text('Varsayılan Yap'),
+                          ],
+                        ),
+                        onTap: () {
+                          _setDefaultBankAccount(index);
+                        },
+                      ),
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: const Row(
+                        children: [
+                          Icon(Icons.edit_outlined),
+                          SizedBox(width: 8),
+                          Text('Düzenle'),
+                        ],
+                      ),
+                      onTap: () {
+                        // Bottom sheet gösteriliyor ama biraz gecikmeli (popup menü kapansın diye)
+                        Future.delayed(
+                          const Duration(milliseconds: 100),
+                          () => _showEditBankAccountBottomSheet(account, index),
+                        );
+                      },
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: const Row(
+                        children: [
+                          Icon(Icons.delete_outline, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Sil', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                      onTap: () {
+                        // Dialog gösteriliyor ama biraz gecikmeli (popup menü kapansın diye)
+                        Future.delayed(
+                          const Duration(milliseconds: 100),
+                          () => _showDeleteBankAccountDialog(index),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // İçerik
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                // IBAN
+                Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 18,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'IBAN',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            account['iban'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 18),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('IBAN kopyalandı'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Hesap sahibi
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 18,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hesap Sahibi',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            account['account_name'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -454,6 +796,9 @@ class _WalletPageState extends State<WalletPage> {
     double amountToConvert = 0;
     double tlValue = 0;
     
+    // Banka hesabı seçimi için
+    String? selectedBankId = _bankAccounts.isEmpty ? null : _bankAccounts.firstWhere((account) => account['isDefault'], orElse: () => _bankAccounts.first)['id'];
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -623,8 +968,7 @@ class _WalletPageState extends State<WalletPage> {
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                  ),const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -669,76 +1013,106 @@ class _WalletPageState extends State<WalletPage> {
                     ),
                   ),
                   
-                  const Spacer(),
+                  const SizedBox(height: 24),
                   
                   // Banka hesabı seçimi
                   const Text(
-                    'Para Çekim Yöntemi',
+                    'Para Çekim Hesabı',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
+                  
+                  _bankAccounts.isEmpty 
+                  ? Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.orange[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange[700],
                           ),
-                          child: const Icon(
-                            Icons.account_balance,
-                            color: Colors.black87,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Banka Hesabı Bulunamadı',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Para çekebilmek için önce bir banka hesabı eklemelisiniz.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.orange[700],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Banka Hesabı',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _showAddBankAccountBottomSheet();
+                            },
+                            child: const Text('Hesap Ekle'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.orange[700],
                             ),
-                            Text(
-                              'Ziraat Bankası **** 1234',
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    )
+                  : DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                      ],
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        prefixIcon: const Icon(Icons.account_balance),
+                      ),
+                      value: selectedBankId,
+                      items: _bankAccounts.map((bank) {
+                        return DropdownMenuItem<String>(
+                          value: bank['id'],
+                          child: Text(
+                            '${bank['bank_name']} - ${_maskIban(bank['iban'])}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          selectedBankId = value;
+                        });
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                  
+                  const Spacer(),
                   
                   // Onayla butonu
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: amountToConvert >= 10 && amountToConvert <= widget.user.walletBalance
-                          ? () {
-                              _processTLConversion(amountToConvert, tlValue);
+                      onPressed: (_bankAccounts.isEmpty || amountToConvert < 10 || amountToConvert > widget.user.walletBalance)
+                          ? null
+                          : () {
+                              final selectedBank = _bankAccounts.firstWhere((bank) => bank['id'] == selectedBankId);
+                              _processTLConversion(amountToConvert, tlValue, selectedBank);
                               Navigator.pop(context);
-                            }
-                          : null,
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2E7D32),
                         disabledBackgroundColor: Colors.grey[300],
@@ -765,8 +1139,16 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
   
+  // IBAN maskeleme
+  String _maskIban(String iban) {
+    if (iban.length > 8) {
+      return '${iban.substring(0, 4)}...${iban.substring(iban.length - 4)}';
+    }
+    return iban;
+  }
+  
   // TL'ye çevirme işlemini gerçekleştir
-  void _processTLConversion(double amount, double tlAmount) {
+  void _processTLConversion(double amount, double tlAmount, Map<String, dynamic> selectedBank) {
     // Bakiyeyi güncelle
     setState(() {
       // Gerçek uygulamada bu değer kullanıcı modelinde güncellenecek
@@ -778,7 +1160,7 @@ class _WalletPageState extends State<WalletPage> {
         date: DateTime.now(),
         amount: amount,
         type: TransactionType.withdraw,
-        description: 'TL\'ye çevrilen puan',
+        description: '${selectedBank['bank_name']} hesabına TL transferi',
       ));
     });
     
@@ -806,7 +1188,7 @@ class _WalletPageState extends State<WalletPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${amount.toStringAsFixed(1)} puanınız ₺${tlAmount.toStringAsFixed(2)} olarak banka hesabınıza aktarılacaktır.'),
+              Text('${amount.toStringAsFixed(1)} puanınız ₺${tlAmount.toStringAsFixed(2)} olarak ${selectedBank['bank_name']} hesabınıza aktarılacaktır.'),
               const SizedBox(height: 12),
               const Text(
                 'Ödeme 24 saat içinde hesabınıza yansıyacaktır.',
@@ -827,6 +1209,499 @@ class _WalletPageState extends State<WalletPage> {
           ],
         );
       },
+    );
+  }
+  
+  // Banka hesabı ekleme bottom sheet
+  void _showAddBankAccountBottomSheet() {
+    final TextEditingController bankNameController = TextEditingController();
+    final TextEditingController accountNameController = TextEditingController();
+    final TextEditingController ibanController = TextEditingController();
+    bool isDefaultAccount = _bankAccounts.isEmpty;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              padding: EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+                // Klavye açıldığında içerik yukarı kaymasını sağlar
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Başlık
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Banka Hesabı Ekle',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Banka adı
+                    const Text(
+                      'Banka Adı',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: bankNameController,
+                      decoration: InputDecoration(
+                        hintText: 'Örn: Ziraat Bankası',
+                        prefixIcon: const Icon(Icons.account_balance),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Hesap sahibi adı
+                    const Text(
+                      'Hesap Sahibi',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: accountNameController,
+                      decoration: InputDecoration(
+                        hintText: 'Örn: Ahmet Yılmaz',
+                        prefixIcon: const Icon(Icons.person),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // IBAN
+                    const Text(
+                      'IBAN',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: ibanController,
+                      decoration: InputDecoration(
+                        hintText: 'TR00 0000 0000 0000 0000 0000 00',
+                        prefixIcon: const Icon(Icons.account_balance_wallet),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Varsayılan olarak ayarla
+                    CheckboxListTile(
+                      title: const Text('Varsayılan hesap olarak ayarla'),
+                      value: isDefaultAccount,
+                      onChanged: (value) {
+                        setState(() {
+                          isDefaultAccount = value ?? false;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Ekle butonu
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (bankNameController.text.isEmpty ||
+                              accountNameController.text.isEmpty ||
+                              ibanController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Lütfen tüm alanları doldurun'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+                          
+                          // Banka hesabı ekle
+                          _addBankAccount(
+                            bankNameController.text,
+                            accountNameController.text,
+                            ibanController.text,
+                            isDefaultAccount,
+                          );
+                          
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2E7D32),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Hesabı Ekle',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+  
+  // Banka hesabı düzenleme bottom sheet
+  void _showEditBankAccountBottomSheet(Map<String, dynamic> account, int index) {
+    final TextEditingController bankNameController = TextEditingController(text: account['bank_name']);
+    final TextEditingController accountNameController = TextEditingController(text: account['account_name']);
+    final TextEditingController ibanController = TextEditingController(text: account['iban']);
+    bool isDefaultAccount = account['isDefault'];
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              padding: EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+                // Klavye açıldığında içerik yukarı kaymasını sağlar
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Başlık
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Banka Hesabı Düzenle',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Banka adı
+                    const Text(
+                      'Banka Adı',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: bankNameController,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.account_balance),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Hesap sahibi adı
+                    const Text(
+                      'Hesap Sahibi',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: accountNameController,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.person),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // IBAN
+                    const Text(
+                      'IBAN',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: ibanController,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.account_balance_wallet),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Varsayılan olarak ayarla
+                    if (!account['isDefault'])
+                      CheckboxListTile(
+                        title: const Text('Varsayılan hesap olarak ayarla'),
+                        value: isDefaultAccount,
+                        onChanged: (value) {
+                          setState(() {
+                            isDefaultAccount = value ?? false;
+                          });
+                        },
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                    const SizedBox(height: 24),
+                    
+                    // Güncelle butonu
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (bankNameController.text.isEmpty ||
+                              accountNameController.text.isEmpty ||
+                              ibanController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Lütfen tüm alanları doldurun'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+                          
+                          // Banka hesabını güncelle
+                          _updateBankAccount(
+                            index,
+                            bankNameController.text,
+                            accountNameController.text,
+                            ibanController.text,
+                            isDefaultAccount,
+                          );
+                          
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2E7D32),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Güncelle',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+  
+  // Banka hesabı silme dialog
+  void _showDeleteBankAccountDialog(int index) {
+    final account = _bankAccounts[index];
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Banka Hesabını Sil'),
+          content: Text('${account['bank_name']} hesabını silmek istediğinizden emin misiniz?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  // Eğer varsayılan hesap siliniyorsa ve başka hesap varsa
+                  // ilk hesabı varsayılan yap
+                  if (account['isDefault'] && _bankAccounts.length > 1) {
+                    // Silinecek hesabı çıkar
+                    _bankAccounts.removeAt(index);
+                    // Kalan hesaplardan birini varsayılan yap
+                    _bankAccounts[0]['isDefault'] = true;
+                  } else {
+                    // Normal silme işlemi
+                    _bankAccounts.removeAt(index);
+                  }
+                });
+                
+                Navigator.pop(context);
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Banka hesabı silindi'),
+                    backgroundColor: Color(0xFF2E7D32),
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Sil'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  
+  // Varsayılan banka hesabını değiştir
+  void _setDefaultBankAccount(int index) {
+    setState(() {
+      // Önce tüm hesapları varsayılan olmaktan çıkar
+      for (var account in _bankAccounts) {
+        account['isDefault'] = false;
+      }
+      // Seçilen hesabı varsayılan yap
+      _bankAccounts[index]['isDefault'] = true;
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Varsayılan banka hesabı güncellendi'),
+        backgroundColor: Color(0xFF2E7D32),
+      ),
+    );
+  }
+  
+  // Yeni banka hesabı ekle
+  void _addBankAccount(String bankName, String accountName, String iban, bool isDefault) {
+    setState(() {
+      // Eğer yeni hesap varsayılan olacaksa, diğer hesapları varsayılan olmaktan çıkar
+      if (isDefault) {
+        for (var account in _bankAccounts) {
+          account['isDefault'] = false;
+        }
+      }
+      
+      // Yeni hesabı ekle
+      _bankAccounts.add({
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
+        'bank_name': bankName,
+        'account_name': accountName,
+        'iban': iban,
+        'isDefault': isDefault,
+        'icon': 'assets/images/banks/default.png',
+      });
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Banka hesabı eklendi'),
+        backgroundColor: Color(0xFF2E7D32),
+      ),
+    );
+  }
+  
+  // Banka hesabını güncelle
+  void _updateBankAccount(int index, String bankName, String accountName, String iban, bool isDefault) {
+    setState(() {
+      // Eğer bu hesap varsayılan yapılıyorsa, diğer hesapları varsayılan olmaktan çıkar
+      if (isDefault && !_bankAccounts[index]['isDefault']) {
+        for (var account in _bankAccounts) {
+          account['isDefault'] = false;
+        }
+      }
+      
+      // Hesabı güncelle
+      _bankAccounts[index] = {
+        'id': _bankAccounts[index]['id'],
+        'bank_name': bankName,
+        'account_name': accountName,
+        'iban': iban,
+        'isDefault': isDefault,
+        'icon': _bankAccounts[index]['icon'],
+      };
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Banka hesabı güncellendi'),
+        backgroundColor: Color(0xFF2E7D32),
+      ),
     );
   }
 }
