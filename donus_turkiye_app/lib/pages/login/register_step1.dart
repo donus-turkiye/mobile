@@ -1,5 +1,3 @@
-// lib/pages/login/register_step1.dart
-
 import 'package:flutter/material.dart';
 import 'register_main.dart';
 
@@ -14,7 +12,7 @@ class RegisterStep1 extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RegisterStep1State createState() => _RegisterStep1State();
+  State<RegisterStep1> createState() => _RegisterStep1State();
 }
 
 class _RegisterStep1State extends State<RegisterStep1> {
@@ -29,12 +27,9 @@ class _RegisterStep1State extends State<RegisterStep1> {
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with existing data
     _emailController = TextEditingController(text: widget.registerData.email);
-    _passwordController =
-        TextEditingController(text: widget.registerData.password);
-    _confirmPasswordController =
-        TextEditingController(text: widget.registerData.password);
+    _passwordController = TextEditingController(text: widget.registerData.password);
+    _confirmPasswordController = TextEditingController(text: widget.registerData.password);
   }
 
   @override
@@ -55,85 +50,55 @@ class _RegisterStep1State extends State<RegisterStep1> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.recycling,
-                size: 80,
-                color: Colors.white,
-              ),
+              const Icon(Icons.recycling, size: 80, color: Colors.white),
               const SizedBox(height: 24),
               const Text(
                 'Hesap Oluştur',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Adım 1: Giriş Bilgileri',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               const SizedBox(height: 32),
 
-              // Email TextField
+              // Email
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'E-posta',
-                  prefixIcon: const Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                decoration: _inputDecoration('E-posta', Icons.email),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Lütfen email adresinizi girin';
+                    return 'Lütfen e-posta adresinizi girin';
                   }
-                  if (!value.contains('@')) {
-                    return 'Geçerli bir email adresi girin';
+                  if (!RegExp(r"^[^@]+@[^@]+\.[^@]+").hasMatch(value)) {
+                    return 'Geçerli bir e-posta girin';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Password TextField
+              // Password
               TextFormField(
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Şifre',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
+                decoration: _inputDecoration(
+                  'Şifre',
+                  Icons.lock,
+                  trailing: IconButton(
                     icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
+                      setState(() => _isPasswordVisible = !_isPasswordVisible);
                     },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
                   ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Lütfen şifrenizi girin';
+                    return 'Lütfen şifre girin';
                   }
                   if (value.length < 6) {
                     return 'Şifre en az 6 karakter olmalıdır';
@@ -143,30 +108,20 @@ class _RegisterStep1State extends State<RegisterStep1> {
               ),
               const SizedBox(height: 16),
 
-              // Confirm Password TextField
+              // Confirm Password
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: !_isConfirmPasswordVisible,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Şifre Tekrar',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
+                decoration: _inputDecoration(
+                  'Şifre Tekrar',
+                  Icons.lock_outline,
+                  trailing: IconButton(
                     icon: Icon(
-                      _isConfirmPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                      _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                      });
+                      setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
                     },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
                   ),
                 ),
                 validator: (value) {
@@ -174,24 +129,21 @@ class _RegisterStep1State extends State<RegisterStep1> {
                     return 'Lütfen şifrenizi tekrar girin';
                   }
                   if (value != _passwordController.text) {
-                    return 'Şifreler eşleşmiyor';
+                    return 'Şifreler uyuşmuyor';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 32),
 
-              // Continue Button - Çizginin üzerine taşındı
+              // Continue button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // Save data to the shared registerData object
-                      widget.registerData.email = _emailController.text;
+                      widget.registerData.email = _emailController.text.trim();
                       widget.registerData.password = _passwordController.text;
-
-                      // Call the onNext callback to proceed to the next step
                       widget.onNext();
                     }
                   },
@@ -214,89 +166,35 @@ class _RegisterStep1State extends State<RegisterStep1> {
               ),
               const SizedBox(height: 32),
 
-              // Alternative login options - DEVAM ET butonundan sonra
-              Row(
-                children: const [
-                  Expanded(
-                    child: Divider(
-                      color: Colors.white54,
-                      thickness: 1,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'veya',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: Colors.white54,
-                      thickness: 1,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Google Sign In Button - Çizginin altına taşındı
-              ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Implement Google Sign In
-                },
-                icon: Container(
-                  height: 24,
-                  width: 24,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_24dp.png',
-                      ),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                label: const Text(
-                  'Google ile Devam Et',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Login link
+              // Already have account
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Zaten hesabınız var mı? Giriş Yap',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
                     decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint, IconData icon, {Widget? trailing}) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      suffixIcon: trailing,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }

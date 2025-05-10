@@ -1,6 +1,5 @@
-// lib/pages/login/register_main.dart
-
 import 'package:flutter/material.dart';
+import '../../services/register.dart'; // Yeni register service'i dahil ettik
 import 'register_step1.dart';
 import 'register_step2.dart';
 import 'register_step3.dart';
@@ -26,15 +25,12 @@ class RegisterMain extends StatefulWidget {
 class _RegisterMainState extends State<RegisterMain> {
   final RegisterData _registerData = RegisterData();
   int _currentStep = 0;
-
-  // Global key for navigator
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Handle back button press
         if (_navigatorKey.currentState?.canPop() ?? false) {
           _navigatorKey.currentState?.pop();
           return false;
@@ -62,67 +58,50 @@ class _RegisterMainState extends State<RegisterMain> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.green.shade300,
-                Colors.green.shade700,
-              ],
+              colors: [Colors.green.shade300, Colors.green.shade700],
             ),
           ),
           child: SafeArea(
             child: Column(
               children: [
-                // Progress bar
                 _buildProgressBar(),
-
-                // Main content
                 Expanded(
                   child: Navigator(
                     key: _navigatorKey,
                     initialRoute: 'step1',
                     onGenerateRoute: (RouteSettings settings) {
                       WidgetBuilder builder;
-
                       switch (settings.name) {
                         case 'step1':
-                          builder = (BuildContext context) => RegisterStep1(
-                                registerData: _registerData,
-                                onNext: () {
-                                  setState(() {
-                                    _currentStep = 1;
-                                  });
-                                  _navigatorKey.currentState
-                                      ?.pushNamed('step2');
-                                },
-                              );
+                          builder = (context) => RegisterStep1(
+                            registerData: _registerData,
+                            onNext: () {
+                              setState(() => _currentStep = 1);
+                              _navigatorKey.currentState?.pushNamed('step2');
+                            },
+                          );
                           break;
                         case 'step2':
-                          builder = (BuildContext context) => RegisterStep2(
-                                registerData: _registerData,
-                                onNext: () {
-                                  setState(() {
-                                    _currentStep = 2;
-                                  });
-                                  _navigatorKey.currentState
-                                      ?.pushNamed('step3');
-                                },
-                              );
+                          builder = (context) => RegisterStep2(
+                            registerData: _registerData,
+                            onNext: () {
+                              setState(() => _currentStep = 2);
+                              _navigatorKey.currentState?.pushNamed('step3');
+                            },
+                          );
                           break;
                         case 'step3':
-                          builder = (BuildContext context) => RegisterStep3(
-                                registerData: _registerData,
-                                onComplete: () {
-                                  _completeRegistration();
-                                },
-                              );
+                          builder = (context) => RegisterStep3(
+                            registerData: _registerData,
+                            onComplete: () {
+                              _completeRegistration();
+                            },
+                          );
                           break;
                         default:
                           throw Exception('Invalid route: ${settings.name}');
                       }
-
-                      return MaterialPageRoute(
-                        builder: builder,
-                        settings: settings,
-                      );
+                      return MaterialPageRoute(builder: builder, settings: settings);
                     },
                   ),
                 ),
@@ -134,7 +113,6 @@ class _RegisterMainState extends State<RegisterMain> {
     );
   }
 
-  // Get app bar title based on current step
   String _getAppBarTitle() {
     switch (_currentStep) {
       case 0:
@@ -148,7 +126,6 @@ class _RegisterMainState extends State<RegisterMain> {
     }
   }
 
-  // Build progress bar
   Widget _buildProgressBar() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -156,39 +133,27 @@ class _RegisterMainState extends State<RegisterMain> {
         children: List.generate(3, (index) {
           bool isActive = index <= _currentStep;
           bool isCurrent = index == _currentStep;
-
           return Expanded(
             child: GestureDetector(
               onTap: () {
-                // Sadece önceki adımlara geri dönebilmesine izin ver
                 if (index < _currentStep) {
-                  setState(() {
-                    _currentStep = index;
-                  });
-
-                  // Navigate to the appropriate step
+                  setState(() => _currentStep = index);
                   if (index == 0) {
-                    _navigatorKey.currentState
-                        ?.pushNamedAndRemoveUntil('step1', (route) => false);
+                    _navigatorKey.currentState?.pushNamedAndRemoveUntil('step1', (r) => false);
                   } else if (index == 1) {
-                    _navigatorKey.currentState
-                        ?.pushNamedAndRemoveUntil('step2', (route) => false);
+                    _navigatorKey.currentState?.pushNamedAndRemoveUntil('step2', (r) => false);
                   }
                 }
               },
               child: Row(
                 children: [
-                  // Step circle
                   Container(
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color:
-                          isActive ? const Color(0xFF8BC399) : Colors.grey[300],
-                      border: isCurrent
-                          ? Border.all(color: Colors.white, width: 2)
-                          : null,
+                      color: isActive ? const Color(0xFF8BC399) : Colors.grey[300],
+                      border: isCurrent ? Border.all(color: Colors.white, width: 2) : null,
                     ),
                     child: Center(
                       child: Icon(
@@ -198,8 +163,6 @@ class _RegisterMainState extends State<RegisterMain> {
                       ),
                     ),
                   ),
-
-                  // Progress line
                   if (index < 2)
                     Expanded(
                       child: Container(
@@ -218,7 +181,6 @@ class _RegisterMainState extends State<RegisterMain> {
     );
   }
 
-  // Get icon for step
   IconData _getStepIcon(int step) {
     switch (step) {
       case 0:
@@ -232,16 +194,33 @@ class _RegisterMainState extends State<RegisterMain> {
     }
   }
 
-  // Complete registration
-  void _completeRegistration() {
-    // Print the collected info
-    print('Registration completed');
-    print('Email: ${_registerData.email}');
-    print('Name: ${_registerData.name} ${_registerData.surname}');
-    print('Phone: ${_registerData.phone}');
-    print('Address: ${_registerData.address}');
+  void _completeRegistration() async {
+    final fullName = "${_registerData.name} ${_registerData.surname}";
+    final isSuccess = await RegisterService.registerUser(
+      fullName: fullName,
+      email: _registerData.email,
+      password: _registerData.password,
+      roleId: 1, // sabit atanmış (örnek olarak)
+      telNumber: _registerData.phone,
+      address: _registerData.address,
+      coordinate: "coordinate", // sabit veya haritadan alınacaksa dinamik yapılabilir
+    );
 
-    // Navigate back to login
-    Navigator.of(context).pop();
+    if (isSuccess) {
+      Navigator.of(context).pop(); // Login sayfasına dön
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kayıt başarılı! Giriş yapabilirsiniz.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kayıt başarısız. Lütfen tekrar deneyin.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

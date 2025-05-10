@@ -1,5 +1,3 @@
-// lib/pages/login/register_step2.dart
-
 import 'package:flutter/material.dart';
 import 'register_main.dart';
 
@@ -14,7 +12,7 @@ class RegisterStep2 extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RegisterStep2State createState() => _RegisterStep2State();
+  State<RegisterStep2> createState() => _RegisterStep2State();
 }
 
 class _RegisterStep2State extends State<RegisterStep2> {
@@ -23,18 +21,15 @@ class _RegisterStep2State extends State<RegisterStep2> {
   late final TextEditingController _surnameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _addressController;
-  late bool _acceptTerms;
+  bool _acceptTerms = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with existing data
     _nameController = TextEditingController(text: widget.registerData.name);
-    _surnameController =
-        TextEditingController(text: widget.registerData.surname);
+    _surnameController = TextEditingController(text: widget.registerData.surname);
     _phoneController = TextEditingController(text: widget.registerData.phone);
-    _addressController =
-        TextEditingController(text: widget.registerData.address);
+    _addressController = TextEditingController(text: widget.registerData.address);
     _acceptTerms = widget.registerData.acceptTerms;
   }
 
@@ -55,144 +50,51 @@ class _RegisterStep2State extends State<RegisterStep2> {
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
                 'Kişisel Bilgiler',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Adım 2: Kimlik ve İletişim Bilgileri',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               const SizedBox(height: 32),
 
-              // Name TextField
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Ad',
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Lütfen adınızı girin';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_nameController, 'Ad', Icons.person, (v) => v == null || v.isEmpty ? 'Lütfen adınızı girin' : null),
               const SizedBox(height: 16),
 
-              // Surname TextField
-              TextFormField(
-                controller: _surnameController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Soyad',
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Lütfen soyadınızı girin';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_surnameController, 'Soyad', Icons.person_outline, (v) => v == null || v.isEmpty ? 'Lütfen soyadınızı girin' : null),
               const SizedBox(height: 16),
 
-              // Phone TextField
-              TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Telefon',
-                  prefixIcon: const Icon(Icons.phone),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Lütfen telefon numaranızı girin';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_phoneController, 'Telefon Numarası', Icons.phone, (v) => v == null || v.isEmpty ? 'Telefon numarası girin' : null,
+                  inputType: TextInputType.phone),
               const SizedBox(height: 16),
 
-              // Address TextField
               TextFormField(
                 controller: _addressController,
                 maxLines: 3,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Adres',
-                  prefixIcon:
-                      const Icon(Icons.location_on, color: Colors.black54),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  alignLabelWithHint: true,
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Lütfen adresinizi girin';
-                  }
-                  return null;
-                },
+                decoration: _inputDecoration('Adres', Icons.location_on),
+                validator: (v) => v == null || v.isEmpty ? 'Adres girin' : null,
               ),
               const SizedBox(height: 24),
 
-              // Terms and Conditions Checkbox
               Row(
                 children: [
                   Checkbox(
                     value: _acceptTerms,
-                    onChanged: (value) {
-                      setState(() {
-                        _acceptTerms = value ?? false;
-                      });
-                    },
+                    onChanged: (v) => setState(() => _acceptTerms = v ?? false),
                     activeColor: Colors.white,
                     checkColor: Colors.green[700],
                     side: const BorderSide(color: Colors.white),
                   ),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _acceptTerms = !_acceptTerms;
-                        });
-                      },
+                      onTap: () => setState(() => _acceptTerms = !_acceptTerms),
                       child: const Text(
                         'Kullanım koşullarını ve gizlilik politikasını okudum ve kabul ediyorum.',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
@@ -200,23 +102,19 @@ class _RegisterStep2State extends State<RegisterStep2> {
               ),
               const SizedBox(height: 32),
 
-              // Continue Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (_acceptTerms &&
-                          _formKey.currentState?.validate() == true)
+                  onPressed: (_acceptTerms && _formKey.currentState?.validate() == true)
                       ? () {
-                          // Save data to the shared registerData object
-                          widget.registerData.name = _nameController.text;
-                          widget.registerData.surname = _surnameController.text;
-                          widget.registerData.phone = _phoneController.text;
-                          widget.registerData.address = _addressController.text;
-                          widget.registerData.acceptTerms = _acceptTerms;
+                    widget.registerData.name = _nameController.text.trim();
+                    widget.registerData.surname = _surnameController.text.trim();
+                    widget.registerData.phone = _phoneController.text.trim();
+                    widget.registerData.address = _addressController.text.trim();
+                    widget.registerData.acceptTerms = _acceptTerms;
 
-                          // Call the onNext callback to proceed to the next step
-                          widget.onNext();
-                        }
+                    widget.onNext();
+                  }
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2E7D32),
@@ -228,17 +126,41 @@ class _RegisterStep2State extends State<RegisterStep2> {
                   ),
                   child: const Text(
                     'DEVAM ET',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  TextFormField _buildTextField(
+      TextEditingController controller,
+      String hint,
+      IconData icon,
+      String? Function(String?) validator, {
+        TextInputType inputType = TextInputType.text,
+      }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: inputType,
+      decoration: _inputDecoration(hint, icon),
+      validator: validator,
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }
