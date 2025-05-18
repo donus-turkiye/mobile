@@ -262,7 +262,7 @@ class _MarketPageState extends State<MarketPage> {
           // Profil Resmi
           CircleAvatar(
             radius: 25,
-            backgroundImage: NetworkImage(widget.user.profileImageUrl),
+            // backgroundImage: NetworkImage(widget.user.profileImageUrl),
           ),
           const SizedBox(width: 12),
           // Kullanıcı Bilgileri
@@ -271,7 +271,7 @@ class _MarketPageState extends State<MarketPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Merhaba, ${widget.user.name}!',
+                  'Merhaba, ${widget.user.fullName}!',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

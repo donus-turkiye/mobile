@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class RegisterService {
-  static const String baseUrl = 'http://10.0.2.2:8080'; // Android emulator için
+  static const String baseUrl = 'http://10.0.2.2:8081'; // Android emulator için
   // Gerçek cihaz için IP örneği: 'http://192.168.x.x:8080'
 
   static Future<bool> registerUser({

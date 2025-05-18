@@ -26,7 +26,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.user.name);
+    _nameController = TextEditingController(text: widget.user.fullName);
     _emailController = TextEditingController(text: widget.user.email);
     _phoneController =
         TextEditingController(text: '+90 555 123 4567'); // Örnek telefon
@@ -84,7 +84,7 @@ class _AccountPageState extends State<AccountPage> {
                 children: [
                   CircleAvatar(
                     radius: 60,
-                    backgroundImage: NetworkImage(widget.user.profileImageUrl),
+                    // backgroundImage: NetworkImage(widget.user.profileImageUrl),
                   ),
                   if (_isEditMode)
                     Positioned(

@@ -1,22 +1,16 @@
-// lib/pages/profile_page.dart - Çıkış işlevi eklenmiş
+// lib/pages/profile_page.dart
 
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
-
-// Alt sayfalar için forward declarations
 import 'profile/personal_info_page.dart';
 import 'profile/settings_page.dart';
 import 'profile/support_page.dart';
-// Login sayfası import edildi
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
-  final UserModel? user;
+  final UserModel user;
 
-  const ProfilePage({
-    Key? key,
-    this.user,
-  }) : super(key: key);
+  const ProfilePage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -28,17 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Örnek kullanıcı bilgisi (normalde giriş yapmış kullanıcının bilgileri alınır)
-    _user = widget.user ??
-        UserModel(
-          id: '1',
-          name: 'Admin',
-          email: 'admin@donusturkiye.com',
-          profileImageUrl: 'https://picsum.photos/200',
-          walletBalance: 125.50,
-          totalRecycledItems: 72,
-          totalEarnings: 184.00,
-        );
+    _user = widget.user;
   }
 
   @override
@@ -53,13 +37,8 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Kullanıcı bilgileri özeti
             _buildProfileHeader(),
-
-            // İstatistikler
             _buildUserStats(),
-
-            // Ana sayfalar menüsü
             _buildMenu(),
           ],
         ),
@@ -67,7 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Profil başlığı - kullanıcı bilgileri
   Widget _buildProfileHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -93,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _user.name,
+                  _user.fullName,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -108,8 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green[50],
                     borderRadius: BorderRadius.circular(20),
@@ -130,7 +107,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Kullanıcı istatistikleri
   Widget _buildUserStats() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -169,7 +145,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Tekil istatistik öğesi
   Widget _buildStatItem({
     required IconData icon,
     required String label,
@@ -201,7 +176,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Ana menü öğeleri
   Widget _buildMenu() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -273,7 +247,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Tekil menü öğesi
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
@@ -304,14 +277,12 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Çıkış yapma diyaloğu
   void _showLogoutDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Çıkış Yap'),
-        content:
-            const Text('Hesabınızdan çıkış yapmak istediğinize emin misiniz?'),
+        content: const Text('Hesabınızdan çıkış yapmak istediğinize emin misiniz?'),
         actions: [
           TextButton(
             onPressed: () {
@@ -332,23 +303,17 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  
-  // Çıkış yap işlemini gerçekleştir
+
   void _performLogout(BuildContext context) {
-    // Önce diyaloğu kapat
     Navigator.pop(context);
-    
-    // Başarılı çıkış mesajı göster
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Başarıyla çıkış yapıldı'),
       ),
     );
-    
-    // Tüm sayfaları temizleyip Login sayfasına yönlendir
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false, // Bu koşul tüm route'ları temizler
+          (Route<dynamic> route) => false,
     );
   }
 }
