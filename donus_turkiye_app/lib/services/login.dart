@@ -1,9 +1,10 @@
+// lib/services/login.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'auth_storage.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:8080'; // Android emulator
-  // Gerçek cihaz kullanıyorsan: 192.168.x.x gibi yerel IP adresini yaz.
+  static const String baseUrl = 'http://10.0.2.2:8081';
 
   static Future<bool> login({
     String? telNumber,
@@ -33,7 +34,25 @@ class ApiService {
       print("⬅️ Status: ${response.statusCode}");
       print("⬅️ Body: ${response.body}");
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+
+        final int userId = jsonResponse['user_data']['user_id'];
+        final sessionId = response.headers['x-session-id'];
+        print('🔑 Session ID alındı: $sessionId');
+        if (sessionId != null) {
+          await AuthStorage.saveSessionId(sessionId);
+        }
+
+        await AuthStorage.saveUserId(userId.toString());
+        if (sessionId != null) {
+          await AuthStorage.saveSessionId(sessionId);
+        }
+
+        return true;
+      }
+
+      return false;
     } catch (e) {
       print("❌ Login API hatası: $e");
       return false;

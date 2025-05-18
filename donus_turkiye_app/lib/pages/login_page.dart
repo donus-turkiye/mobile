@@ -164,8 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                             if (isSuccess) {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (_) => const MainNavigation()),
+                                MaterialPageRoute(builder: (context) => const MainNavigation()),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

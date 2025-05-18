@@ -1,30 +1,43 @@
 // lib/models/user_model.dart
 
 class UserModel {
-  final String id;
-  final String name;
+  final int id;
+  final String fullName;
   final String email;
+  final String telNumber;
+  final String address;
+  final String coordinate;
+  final int roleId;
+
+  // Opsiyonel alanlar
   final String profileImageUrl;
-  double walletBalance;
-  int totalRecycledItems;
-  double totalEarnings;
+  final double walletBalance;
+  final int totalRecycledItems;
+  final double totalEarnings;
 
   UserModel({
     required this.id,
-    required this.name,
+    required this.fullName,
     required this.email,
+    required this.telNumber,
+    required this.address,
+    required this.coordinate,
+    required this.roleId,
     this.profileImageUrl = '',
     this.walletBalance = 0.0,
     this.totalRecycledItems = 0,
     this.totalEarnings = 0.0,
   });
-
-  // Veritabanından (JSON) veri çekerken kullanılacak constructor
+  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel.fromMap(json);
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
+      id: map['id'] ?? 0,
+      fullName: map['full_name'] ?? '',
       email: map['email'] ?? '',
+      telNumber: map['tel_number'] ?? '',
+      address: map['address'] ?? '',
+      coordinate: map['coordinate'] ?? '',
+      roleId: map['role_id'] ?? 0,
       profileImageUrl: map['profileImageUrl'] ?? '',
       walletBalance: map['walletBalance']?.toDouble() ?? 0.0,
       totalRecycledItems: map['totalRecycledItems']?.toInt() ?? 0,
@@ -32,24 +45,30 @@ class UserModel {
     );
   }
 
-  // Veritabanına veri gönderirken kullanılacak metod
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
+      'full_name': fullName,
       'email': email,
+      'tel_number': telNumber,
+      'address': address,
+      'coordinate': coordinate,
+      'role_id': roleId,
       'profileImageUrl': profileImageUrl,
       'walletBalance': walletBalance,
       'totalRecycledItems': totalRecycledItems,
       'totalEarnings': totalEarnings,
     };
   }
-  
-  // Kullanıcı bilgilerini güncelleyen kopya oluşturma metodu
+
   UserModel copyWith({
-    String? id,
-    String? name,
+    int? id,
+    String? fullName,
     String? email,
+    String? telNumber,
+    String? address,
+    String? coordinate,
+    int? roleId,
     String? profileImageUrl,
     double? walletBalance,
     int? totalRecycledItems,
@@ -57,8 +76,12 @@ class UserModel {
   }) {
     return UserModel(
       id: id ?? this.id,
-      name: name ?? this.name,
+      fullName: fullName ?? this.fullName,
       email: email ?? this.email,
+      telNumber: telNumber ?? this.telNumber,
+      address: address ?? this.address,
+      coordinate: coordinate ?? this.coordinate,
+      roleId: roleId ?? this.roleId,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       walletBalance: walletBalance ?? this.walletBalance,
       totalRecycledItems: totalRecycledItems ?? this.totalRecycledItems,

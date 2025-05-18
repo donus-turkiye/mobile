@@ -1,12 +1,12 @@
-// lib/pages/main_navigation.dart
-
 import 'package:flutter/material.dart';
 import 'main_page.dart';
 import 'collect_waste_page.dart';
 import 'profile_page.dart';
 import 'wallet_page.dart';
-import 'market_page.dart'; // Yeni Market sayfası
+import 'market_page.dart';
 import '../models/user_model.dart';
+import '../services/auth_storage.dart';
+import '../services/user_service.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -17,33 +17,29 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 2;
-  
-  // Örnek kullanıcı - Gerçek uygulamada veritabanından gelecek
-  late UserModel _currentUser;
-  
+  UserModel? _currentUser;
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    // Örnek kullanıcı oluştur
-    _currentUser = UserModel(
-      id: '1',
-      name: 'Admin',
-      email: 'admin@donus.com',
-      profileImageUrl: 'https://picsum.photos/200',
-      walletBalance: 25.75,
-      totalRecycledItems: 72,
-      totalEarnings: 184.00,
-    );
+    _loadUserData();
   }
 
-  // Sayfalarımızı burada tanımlıyoruz
-  late final List<Widget> _pages = [
-    MarketPage(user: _currentUser), // "Tara" sayfası yerine "Market" sayfası
-    WalletPage(user: _currentUser),
-    const MainPage(),
-    CollectWastePage(user: _currentUser),
-    ProfilePage(user: _currentUser),
-  ];
+  Future<void> _loadUserData() async {
+    final userId = await AuthStorage.getUserId();
+    if (userId != null) {
+      final user = await UserService.getCurrentUser();
+      setState(() {
+        _currentUser = user;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -53,10 +49,24 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading || _currentUser == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final pages = [
+      MarketPage(user: _currentUser!),
+      WalletPage(user: _currentUser!),
+      MainPage(user: _currentUser!),
+      CollectWastePage(user: _currentUser!),
+      ProfilePage(user: _currentUser!),
+    ];
+
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: Container(
-        height: 70, // Yüksekliği sabit tutmak için
+        height: 70,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -70,18 +80,18 @@ class _MainNavigationState extends State<MainNavigation> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(0, Icons.shopping_bag, 'Market'), // İkon ve metin değişti
+            _buildNavItem(0, Icons.shopping_bag, 'Market'),
             _buildNavItem(1, Icons.account_balance_wallet, 'Cüzdan'),
-            const SizedBox(width: 60), // Ortadaki home butonu için boşluk
+            const SizedBox(width: 60),
             _buildNavItem(3, Icons.delete_outline, 'Atık Topla'),
             _buildNavItem(4, Icons.person, 'Profil'),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _onItemTapped(2), // Ana sayfaya git
-        backgroundColor: _selectedIndex == 2 
-            ? const Color(0xFF2E7D32) 
+        onPressed: () => _onItemTapped(2),
+        backgroundColor: _selectedIndex == 2
+            ? const Color(0xFF2E7D32)
             : const Color(0xFF8BC399),
         child: const Icon(Icons.home, color: Colors.white),
       ),
@@ -91,7 +101,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
-    
+
     return InkWell(
       onTap: () => _onItemTapped(index),
       child: Column(

@@ -12,6 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.2.2
   cupertino_icons: ^1.0.8
   # diğer bağımlılıklar...
   image_picker: ^0.8.7+5
